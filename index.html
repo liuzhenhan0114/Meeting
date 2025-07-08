@@ -2782,17 +2782,17 @@
         
         // 显示预约管理页面
         document.getElementById('showReservationManagementBtn').addEventListener('click', function() {
-            const password = prompt('请输入管理员密码：');
-            if (password === '666888') {
+            //const password = prompt('请输入管理员密码：');
+            //if (password === '666888') {
                 document.getElementById('bookingSystem').style.display = 'none';
                 document.getElementById('statusDisplay').style.display = 'none';
                 document.getElementById('roomManagement').style.display = 'none';
                 document.getElementById('reservationManagement').style.display = 'block';
                 localStorage.setItem('lastView', 'reservationManagement');
                 displayReservationsManagement();
-            } else if (password !== null) {
-                alert('密码错误，无法访问预约管理页面！');
-            }
+            //} else if (password !== null) {
+            //    alert('密码错误，无法访问预约管理页面！');
+            //}
         });
         
         // 页面加载时根据localStorage显示上次页面
