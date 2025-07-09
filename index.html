@@ -1447,11 +1447,7 @@
                         <div class="form-group">
                             <label for="meetingRoom">选择会议室</label>
                             <select id="meetingRoom" required>
-                                <option value="">-- 请选择会议室 --</option>
-                                <option value="room1">会议室 1 (创新厅, 8人)</option>
-                                <option value="room2">会议室 2 (协作厅, 12人)</option>
-                                <option value="room3">会议室 3 (决策厅, 6人)</option>
-                                <option value="room4">会议室 4 (创意空间, 10人)</option>
+                                
                             </select>
                         </div>
                         
@@ -1787,155 +1783,110 @@
         })();
         
         // 会议室数据结构
-        let meetingRooms = JSON.parse(localStorage.getItem('meetingRooms')) || [
-            {
-                id: 'room1',
-                name: '创新厅',
-                capacity: 8,
-                description: '适合小型创意会议',
-                equipment: '投影仪, 白板',
-                status: 'available'
-            },
-            {
-                id: 'room2',
-                name: '协作厅',
-                capacity: 12,
-                description: '适合团队协作会议',
-                equipment: '电视, 视频会议设备',
-                status: 'available'
-            },
-            {
-                id: 'room3',
-                name: '决策厅',
-                capacity: 6,
-                description: '适合高层决策会议',
-                equipment: '视频会议系统, 智能白板',
-                status: 'available'
-            },
-            {
-                id: 'room4',
-                name: '创意空间',
-                capacity: 10,
-                description: '灵活多变的创意空间',
-                equipment: '投影仪, 移动白板',
-                status: 'available'
-            }
-        ];
-        
-        // 保存预约数据到localStorage
-        function saveReservations() {
-            localStorage.setItem('meetingReservations', JSON.stringify(reservations));
-        }
-        
-        // 保存会议室数据
-        function saveRooms() {
-            localStorage.setItem('meetingRooms', JSON.stringify(meetingRooms));
-            generateRoomOptions();
-            displayRooms();
-        }
-        
-        // 生成会议室下拉选项
-        function generateRoomOptions() {
-            const roomSelect = document.getElementById('meetingRoom');
-            roomSelect.innerHTML = '<option value="">-- 请选择会议室 --</option>';
-            
-            meetingRooms.forEach(room => {
-                if (room.status === 'available') {
-                    const option = document.createElement('option');
-                    option.value = room.id;
-                    option.textContent = `${room.name} (${room.capacity}人)`;
-                    roomSelect.appendChild(option);
-                }
-            });
-        }
+		let meetingRooms = [];
 
-        // 显示会议室列表
-        function displayRooms() {
-            const container = document.getElementById('roomsContainer');
-            container.innerHTML = '';
-            
-            if (meetingRooms.length === 0) {
-                container.innerHTML = `
-                    <div class="no-rooms">
-                        <i class="fas fa-door-closed"></i>
-                        <p>暂无会议室信息，请添加会议室</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            meetingRooms.forEach(room => {
-                const roomElement = document.createElement('div');
-                roomElement.className = 'room-item';
-                
-                // 状态标签
-                let statusText = '';
-                let statusClass = '';
-                switch(room.status) {
-                    case 'available':
-                        statusText = '可用';
-                        statusClass = 'status-upcoming';
-                        break;
-                    case 'maintenance':
-                        statusText = '维护中';
-                        statusClass = 'status-past';
-                        break;
-                    case 'unavailable':
-                        statusText = '不可用';
-                        statusClass = 'status-current';
-                        break;
-                }
-                
-                // 设备标签
-                let equipmentTags = '';
-                if (room.equipment) {
-                    const equipmentList = room.equipment.split(',').map(e => e.trim());
-                    equipmentTags = equipmentList.map(eq => `
-                        <div class="equipment-tag">
-                            <i class="fas fa-check"></i>${eq}
-                        </div>
-                    `).join('');
-                }
-                
-                roomElement.innerHTML = `
-                    <div>
-                        <strong>${room.name}</strong>
-                        ${room.description ? `<div class="room-info">${room.description}</div>` : ''}
-                    </div>
-                    <div>${room.capacity}人</div>
-                    <div class="equipment-list">${equipmentTags || '无'}</div>
-                    <div>
-                        <span class="status-indicator ${statusClass}"></span>${statusText}
-                    </div>
-                    <div class="room-actions">
-                        <button class="room-action-btn edit-room-btn" data-id="${room.id}">
-                            <i class="fas fa-edit"></i> 编辑
-                        </button>
-                        <button class="room-action-btn delete-room-btn" data-id="${room.id}">
-                            <i class="fas fa-trash"></i> 删除
-                        </button>
-                    </div>
-                `;
-                
-                container.appendChild(roomElement);
-            });
-            
-            // 添加编辑事件监听
-            document.querySelectorAll('.edit-room-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const roomId = this.dataset.id;
-                    editRoom(roomId);
-                });
-            });
-            
-            // 添加删除事件监听
-            document.querySelectorAll('.delete-room-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const roomId = this.dataset.id;
-                    deleteRoom(roomId);
-                });
-            });
-        }
+		fetch('./data/rooms.json')
+		  .then(res => res.json())
+		  .then(data => {
+			meetingRooms = data;
+			generateRoomOptions();
+			displayRooms();
+		  })
+		  .catch(err => {
+			console.error('会议室数据加载失败:', err);
+		  });
+
+		// 禁用保存会议室到本地（改为只读）
+		// function saveRooms() {
+		//   localStorage.setItem('meetingRooms', JSON.stringify(meetingRooms));
+		//   generateRoomOptions();
+		//   displayRooms();
+		// }
+
+		function generateRoomOptions() {
+		  const roomSelect = document.getElementById('meetingRoom');
+		  if (!roomSelect) return;
+		  roomSelect.innerHTML = '<option value="">-- 请选择会议室 --</option>';
+
+		  meetingRooms.forEach(room => {
+			if (room.status === 'available') {
+			  const option = document.createElement('option');
+			  option.value = room.id;
+			  option.textContent = `${room.name} (${room.capacity}人)`;
+			  roomSelect.appendChild(option);
+			}
+		  });
+		}
+
+		function displayRooms() {
+		  const container = document.getElementById('roomsContainer');
+		  if (!container) return;
+		  container.innerHTML = '';
+
+		  if (meetingRooms.length === 0) {
+			container.innerHTML = `
+			  <div class="no-rooms">
+				<i class="fas fa-door-closed"></i>
+				<p>暂无会议室信息，请联系管理员配置 rooms.json</p>
+			  </div>
+			`;
+			return;
+		  }
+
+		  meetingRooms.forEach(room => {
+			const roomElement = document.createElement('div');
+			roomElement.className = 'room-item';
+
+			let statusText = '';
+			let statusClass = '';
+			switch(room.status) {
+			  case 'available':
+				statusText = '可用';
+				statusClass = 'status-upcoming';
+				break;
+			  case 'maintenance':
+				statusText = '维护中';
+				statusClass = 'status-past';
+				break;
+			  case 'unavailable':
+				statusText = '不可用';
+				statusClass = 'status-current';
+				break;
+			}
+
+			let equipmentTags = '';
+			if (room.equipment) {
+			  const equipmentList = room.equipment.split(',').map(e => e.trim());
+			  equipmentTags = equipmentList.map(eq => `
+				<div class="equipment-tag">
+				  <i class="fas fa-check"></i>${eq}
+				</div>
+			  `).join('');
+			}
+
+			roomElement.innerHTML = `
+			  <div>
+				<strong>${room.name}</strong>
+				${room.description ? `<div class="room-info">${room.description}</div>` : ''}
+			  </div>
+			  <div>${room.capacity}人</div>
+			  <div class="equipment-list">${equipmentTags || '无'}</div>
+			  <div>
+				<span class="status-indicator ${statusClass}"></span>${statusText}
+			  </div>
+			  <div class="room-actions">
+				<button class="room-action-btn edit-room-btn" data-id="${room.id}" disabled>
+				  <i class="fas fa-edit"></i> 编辑
+				</button>
+				<button class="room-action-btn delete-room-btn" data-id="${room.id}" disabled>
+				  <i class="fas fa-trash"></i> 删除
+				</button>
+			  </div>
+			`;
+
+			container.appendChild(roomElement);
+		  });
+		}
         
         // 编辑会议室
         function editRoom(roomId) {
@@ -2007,13 +1958,13 @@
             endContainer.innerHTML = '';
             
             const times = [
-                '08:30', '09:00', '09:30', 
+                '08:00', '08:30', '09:00', '09:30', 
                 '10:00', '10:30', '11:00', '11:30',
                 '12:00', '12:30', '13:00', '13:30',
                 '14:00', '14:30', '15:00', '15:30',
                 '16:00', '16:30', '17:00', '17:30',
                 '18:00', '18:30', '19:00', '19:30',
-                '20:00', '20:30', '21:00'
+				'20:00', '20:30', '21:00'
             ];
             
             const currentReservations = getReservationsForCurrentRoomAndDate();
@@ -2062,13 +2013,13 @@
             endContainer.innerHTML = '';
             
             const times = [
-                '08:30', '09:00', '09:30', 
+                '08:00', '08:30', '09:00', '09:30', 
                 '10:00', '10:30', '11:00', '11:30',
                 '12:00', '12:30', '13:00', '13:30',
                 '14:00', '14:30', '15:00', '15:30',
                 '16:00', '16:30', '17:00', '17:30',
                 '18:00', '18:30', '19:00', '19:30',
-                '20:00', '20:30', '21:00'
+				'20:00', '20:30', '21:00'
             ];
             
             // 找到开始时间在数组中的位置
@@ -2151,7 +2102,7 @@
             const times = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
                           '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
                           '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
-                          '20:00', '20:30', '21:00'];
+						  '20:00', '20:30', '21:00'];
             
             let availableSlots = [];
             let currentStart = null;
@@ -2476,11 +2427,11 @@
                 let statusText = '可用';
                 
                 if (dayReservations.length > 0) {
-                    // 检查是否全天被预约（假设工作时间8:00-18:00，共20个半小时时段）
+                    // 检查是否全天被预约
                     const timeSlots = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-                                      '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-                                      '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
-                                      '20:00', '20:30', '21:00'];
+                          '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+                          '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+						  '20:00', '20:30', '21:00'];
                     
                     let bookedSlots = 0;
                     timeSlots.forEach(time => {
@@ -2782,17 +2733,17 @@
         
         // 显示预约管理页面
         document.getElementById('showReservationManagementBtn').addEventListener('click', function() {
-            //const password = prompt('请输入管理员密码：');
-            //if (password === '666888') {
+            const password = prompt('请输入管理员密码：');
+            if (password === '666888') {
                 document.getElementById('bookingSystem').style.display = 'none';
                 document.getElementById('statusDisplay').style.display = 'none';
                 document.getElementById('roomManagement').style.display = 'none';
                 document.getElementById('reservationManagement').style.display = 'block';
                 localStorage.setItem('lastView', 'reservationManagement');
                 displayReservationsManagement();
-            //} else if (password !== null) {
-            //    alert('密码错误，无法访问预约管理页面！');
-            //}
+            } else if (password !== null) {
+                alert('密码错误，无法访问预约管理页面！');
+            }
         });
         
         // 页面加载时根据localStorage显示上次页面
