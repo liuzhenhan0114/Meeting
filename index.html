@@ -1783,7 +1783,7 @@
         })();
         
         // 会议室数据结构
-		let meetingRooms = [];
+        let meetingRooms = [];
 
 		fetch('./data/rooms.json')
 		  .then(res => res.json())
@@ -1795,15 +1795,21 @@
 		  .catch(err => {
 			console.error('会议室数据加载失败:', err);
 		  });
-
-		// 禁用保存会议室到本地（改为只读）
-		// function saveRooms() {
-		//   localStorage.setItem('meetingRooms', JSON.stringify(meetingRooms));
-		//   generateRoomOptions();
-		//   displayRooms();
-		// }
-
-		function generateRoomOptions() {
+        
+        // 保存预约数据到localStorage
+        function saveReservations() {
+            localStorage.setItem('meetingReservations', JSON.stringify(reservations));
+        }
+        
+        // 保存会议室数据
+        //function saveRooms() {
+        //    localStorage.setItem('meetingRooms', JSON.stringify(meetingRooms));
+        //    generateRoomOptions();
+        //    displayRooms();
+        //}
+        
+        // 生成会议室下拉选项
+        function generateRoomOptions() {
 		  const roomSelect = document.getElementById('meetingRoom');
 		  if (!roomSelect) return;
 		  roomSelect.innerHTML = '<option value="">-- 请选择会议室 --</option>';
@@ -1818,7 +1824,8 @@
 		  });
 		}
 
-		function displayRooms() {
+        // 显示会议室列表
+        function displayRooms() {
 		  const container = document.getElementById('roomsContainer');
 		  if (!container) return;
 		  container.innerHTML = '';
@@ -1827,7 +1834,7 @@
 			container.innerHTML = `
 			  <div class="no-rooms">
 				<i class="fas fa-door-closed"></i>
-				<p>暂无会议室信息，请联系管理员配置 rooms.json</p>
+				<p>暂无会议室信息，请添加会议室</p>
 			  </div>
 			`;
 			return;
@@ -1837,6 +1844,7 @@
 			const roomElement = document.createElement('div');
 			roomElement.className = 'room-item';
 
+			// 状态标签
 			let statusText = '';
 			let statusClass = '';
 			switch(room.status) {
@@ -1854,6 +1862,7 @@
 				break;
 			}
 
+			// 设备标签
 			let equipmentTags = '';
 			if (room.equipment) {
 			  const equipmentList = room.equipment.split(',').map(e => e.trim());
@@ -1875,10 +1884,10 @@
 				<span class="status-indicator ${statusClass}"></span>${statusText}
 			  </div>
 			  <div class="room-actions">
-				<button class="room-action-btn edit-room-btn" data-id="${room.id}" disabled>
+				<button class="room-action-btn edit-room-btn" data-id="${room.id}">
 				  <i class="fas fa-edit"></i> 编辑
 				</button>
-				<button class="room-action-btn delete-room-btn" data-id="${room.id}" disabled>
+				<button class="room-action-btn delete-room-btn" data-id="${room.id}">
 				  <i class="fas fa-trash"></i> 删除
 				</button>
 			  </div>
@@ -1886,6 +1895,23 @@
 
 			container.appendChild(roomElement);
 		  });
+		
+            
+            // 添加编辑事件监听
+            document.querySelectorAll('.edit-room-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const roomId = this.dataset.id;
+                    editRoom(roomId);
+                });
+            });
+            
+            // 添加删除事件监听
+            document.querySelectorAll('.delete-room-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const roomId = this.dataset.id;
+                    deleteRoom(roomId);
+                });
+          });
 		}
         
         // 编辑会议室
