@@ -1,7 +1,7 @@
 [
   {
     "id": "room1",
-    "name": "创新厅",
+    "name": "创新厅111",
     "capacity": 8,
     "description": "适合小型创意会议",
     "equipment": "投影仪, 白板",
@@ -9,7 +9,7 @@
   },
   {
     "id": "room2",
-    "name": "协作厅",
+    "name": "协作厅222",
     "capacity": 12,
     "description": "适合团队协作会议",
     "equipment": "电视, 视频会议设备",
@@ -17,7 +17,7 @@
   },
   {
     "id": "room3",
-    "name": "决策厅",
+    "name": "决策厅333",
     "capacity": 6,
     "description": "适合高层决策会议",
     "equipment": "视频会议系统, 智能白板",
@@ -25,7 +25,7 @@
   },
   {
     "id": "room4",
-    "name": "创意空间",
+    "name": "创意空间444",
     "capacity": 10,
     "description": "灵活多变的创意空间",
     "equipment": "投影仪, 移动白板",
