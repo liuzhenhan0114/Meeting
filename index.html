@@ -1946,7 +1946,7 @@
                 }
                 
                 meetingRooms = meetingRooms.filter(room => room.id !== roomId);
-                saveRooms();
+                //saveRooms();
                 alert('会议室已成功删除');
             }
         }
@@ -2639,7 +2639,7 @@
                 });
             }
             
-            saveRooms();
+            //saveRooms();
             document.getElementById('roomFormContainer').style.display = 'none';
             document.getElementById('addRoomBtn').style.display = 'block';
             
@@ -2647,7 +2647,7 @@
         });
         
         // 初始化页面
-        saveRooms(); // 初始化会议室数据
+        //saveRooms(); // 初始化会议室数据
         generateRoomOptions();
         generateTimeOptions();
         updateCurrentTime();
