@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>登记表单</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    input { margin: 5px; }
+  </style>
+</head>
+<body>
+  <h2>登记信息</h2>
+  <form id="form">
+    姓名: <input type="text" id="name" required />
+    年龄: <input type="number" id="age" required />
+    电话: <input type="text" id="phone" required />
+    地址: <input type="text" id="address" required />
+    <button type="submit">登记</button>
+  </form>
+  <table id="dataTable">
+    <thead>
+      <tr><th>姓名</th><th>年龄</th><th>电话</th><th>地址</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadData() {
+      const res = await fetch('/api/list');
+      const data = await res.json();
+      const tbody = document.querySelector('#dataTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${entry.name}</td><td>${entry.age}</td><td>${entry.phone}</td><td>${entry.address}</td>`;
+        tbody.appendChild(row);
+      });
+    }
+
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const age = document.getElementById('age').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, age, phone, address })
+      });
+      const result = await res.json();
+      if (result.success) {
+        await loadData();
+        document.getElementById('form').reset();
+      } else {
+        alert('提交失败，请稍后重试');
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
