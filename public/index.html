@@ -1,66 +1,56 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>登记表单</title>
-  <style>
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    input { margin: 5px; }
-  </style>
+  <title>会议登记</title>
 </head>
 <body>
-  <h2>登记信息</h2>
+  <h2>会议登记</h2>
   <form id="form">
-    姓名: <input type="text" id="name" required />
-    年龄: <input type="number" id="age" required />
-    电话: <input type="text" id="phone" required />
-    地址: <input type="text" id="address" required />
+    姓名：<input name="name" required />
+    <br />
+    部门：<input name="department" required />
+    <br />
     <button type="submit">登记</button>
   </form>
-  <table id="dataTable">
-    <thead>
-      <tr><th>姓名</th><th>年龄</th><th>电话</th><th>地址</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+
+  <h3>已登记名单</h3>
+  <ul id="list"></ul>
 
   <script>
-    async function loadData() {
-      const res = await fetch('/api/list');
-      const data = await res.json();
-      const tbody = document.querySelector('#dataTable tbody');
-      tbody.innerHTML = '';
-      data.forEach(entry => {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${entry.name}</td><td>${entry.age}</td><td>${entry.phone}</td><td>${entry.address}</td>`;
-        tbody.appendChild(row);
-      });
-    }
-
-    document.getElementById('form').addEventListener('submit', async (e) => {
+    // 提交表单
+    document.getElementById("form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const age = document.getElementById('age').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const address = document.getElementById('address').value.trim();
-      const res = await fetch('/api/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, age, phone, address })
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      const res = await fetch("/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-      const result = await res.json();
-      if (result.success) {
-        await loadData();
-        document.getElementById('form').reset();
+
+      if (res.ok) {
+        alert("登记成功！");
+        loadList(); // 重新加载列表
       } else {
-        alert('提交失败，请稍后重试');
+        alert("提交失败，请稍后重试");
       }
     });
 
-    loadData();
+    async function loadList() {
+      const res = await fetch("/api/list?ts=" + Date.now()); // 加时间戳绕过缓存
+      const list = await res.json();
+      const ul = document.getElementById("list");
+      ul.innerHTML = "";
+      list.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name}（${item.department}）`;
+        ul.appendChild(li);
+      });
+    }
+
+    loadList();
   </script>
 </body>
 </html>
